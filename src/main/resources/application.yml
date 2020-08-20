@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: order
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: 123456
+    url: jdbc:mysql://192.168.74.158:3306/wechat_ordering?&useUnicode=true&characterEncoding=utf-8
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
