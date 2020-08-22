@@ -7,7 +7,7 @@ import org.springframework.cloud.netflix.feign.EnableFeignClients;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@EnableFeignClients
+@EnableFeignClients(basePackages = "com.scsa.product.client") //服务接口的位置
 public class OrderApplication {
 
     public static void main(String[] args) {

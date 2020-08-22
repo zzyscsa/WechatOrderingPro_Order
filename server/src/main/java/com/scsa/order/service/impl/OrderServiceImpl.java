@@ -1,6 +1,5 @@
 package com.scsa.order.service.impl;
 
-import com.scsa.order.client.ProductClient;
 import com.scsa.order.dao.OrderDetailDao;
 import com.scsa.order.dao.OrderMasterDao;
 import com.scsa.order.dataobject.OrderDetail;
@@ -12,6 +11,9 @@ import com.scsa.order.enums.OrderStatusEnum;
 import com.scsa.order.enums.PayStatusEnum;
 import com.scsa.order.service.OrderService;
 import com.scsa.order.util.KeyUtil;
+import com.scsa.product.client.ProductClient;
+import com.scsa.product.common.DecreaseStockInput;
+import com.scsa.product.common.ProductInfoOutPut;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,6 +38,7 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private ProductClient productClient;
 
+
     @Override
     public OrderDTO create(OrderDTO orderDTO) {
         String orderId = KeyUtil.genUniqueKey();
@@ -44,16 +47,16 @@ public class OrderServiceImpl implements OrderService {
         List<String> productIdList = orderDTO.getOrderDetailList().stream()
                                             .map(OrderDetail::getProductId)
                                             .collect(Collectors.toList());
-        List<ProductInfo> productInfoList = productClient.listForOrder(productIdList);
+        List<ProductInfoOutPut> productInfoOutPutList = productClient.listForOrder(productIdList);
         // 计算总价
         BigDecimal orderAmount = new BigDecimal("0");
         for (OrderDetail orderDetail : orderDTO.getOrderDetailList()) {
-            for (ProductInfo productInfo : productInfoList) {
-                if (productInfo.getProductId().equals(orderDetail.getProductId())) {
-                    orderAmount = productInfo.getProductPrice()
+            for (ProductInfoOutPut productInfoOutPut : productInfoOutPutList) {
+                if (productInfoOutPut.getProductId().equals(orderDetail.getProductId())) {
+                    orderAmount = productInfoOutPut.getProductPrice()
                             .multiply(new BigDecimal(orderDetail.getProductQuantity()))
                             .add(orderAmount);
-                    BeanUtils.copyProperties(productInfo, orderDetail);
+                    BeanUtils.copyProperties(productInfoOutPut, orderDetail);
                     orderDetail.setOrderId(orderId);
                     orderDetail.setDetailId(KeyUtil.genUniqueKey());
                     //订单详情入库
@@ -63,10 +66,10 @@ public class OrderServiceImpl implements OrderService {
         }
 
         // 扣库存(调用商品服务)
-        List<CartDTO> cartDTOList = orderDTO.getOrderDetailList().stream()
-                                            .map(e -> new CartDTO(e.getProductId(), e.getProductQuantity()))
+        List<DecreaseStockInput> decreaseStockInputList = orderDTO.getOrderDetailList().stream()
+                                            .map(e -> new DecreaseStockInput(e.getProductId(), e.getProductQuantity()))
                                             .collect(Collectors.toList());
-        productClient.decreaseStock(cartDTOList);
+        productClient.decreaseStock(decreaseStockInputList);
 
         //订单入库
         OrderMaster orderMaster = new OrderMaster();
