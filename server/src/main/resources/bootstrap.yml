@@ -7,6 +7,11 @@ spring:
         enabled: true
         service-id: CONFIG #注册中心config对应的应用名字
       profile: dev
+  rabbitmq:
+    host: 192.168.0.105
+    port: 5672
+    username: guest
+    password: guest
 eureka:
   client:
     service-url:
