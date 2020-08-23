@@ -7,6 +7,11 @@ spring:
         enabled: true
         service-id: CONFIG #注册中心config对应的应用名字
       profile: dev
+    stream:
+      bindings:
+        myMessage:
+          group: order #服务分组，多个实例都监听同一个myMessage.group队列
+          content-type: application/json #发送的消息序列化,消息堆积的时候可以查到具体消息
   rabbitmq:
     host: 192.168.0.105
     port: 5672
