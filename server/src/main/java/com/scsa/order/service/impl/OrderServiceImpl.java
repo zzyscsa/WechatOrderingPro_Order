@@ -4,8 +4,6 @@ import com.scsa.order.dao.OrderDetailDao;
 import com.scsa.order.dao.OrderMasterDao;
 import com.scsa.order.dataobject.OrderDetail;
 import com.scsa.order.dataobject.OrderMaster;
-import com.scsa.order.dataobject.ProductInfo;
-import com.scsa.order.dto.CartDTO;
 import com.scsa.order.dto.OrderDTO;
 import com.scsa.order.enums.OrderStatusEnum;
 import com.scsa.order.enums.PayStatusEnum;
