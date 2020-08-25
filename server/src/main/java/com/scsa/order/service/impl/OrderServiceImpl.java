@@ -7,6 +7,8 @@ import com.scsa.order.dataobject.OrderMaster;
 import com.scsa.order.dto.OrderDTO;
 import com.scsa.order.enums.OrderStatusEnum;
 import com.scsa.order.enums.PayStatusEnum;
+import com.scsa.order.enums.ResultEnum;
+import com.scsa.order.exception.OrderException;
 import com.scsa.order.service.OrderService;
 import com.scsa.order.util.KeyUtil;
 import com.scsa.product.client.ProductClient;
@@ -15,9 +17,12 @@ import com.scsa.product.common.ProductInfoOutPut;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -38,6 +43,7 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
+    @Transactional
     public OrderDTO create(OrderDTO orderDTO) {
         String orderId = KeyUtil.genUniqueKey();
 
@@ -78,6 +84,42 @@ public class OrderServiceImpl implements OrderService {
         orderMaster.setPayStatus(PayStatusEnum.WAIT.getCode());
 
         orderMasterDao.save(orderMaster);
+        return orderDTO;
+    }
+
+    /**
+     * 完结订单
+     * @param orderId
+     * @return
+     */
+    @Override
+    @Transactional
+    public OrderDTO finish(String orderId) {
+        //1. 查询订单
+        Optional<OrderMaster> orderMasterOptional = orderMasterDao.findById(orderId);
+        if (!orderMasterOptional.isPresent()) {
+            throw new OrderException(ResultEnum.ORDER_NOT_EXIST);
+        }
+
+        //2. 判断订单状态
+        OrderMaster orderMaster = orderMasterOptional.get();
+        if (orderMaster.getOrderStatus() != OrderStatusEnum.NEW.getCode()) {
+            throw new OrderException(ResultEnum.ORDER_STATUS_ERROR);
+        }
+
+        //3. 修改订单状态为完结
+        orderMaster.setOrderStatus(OrderStatusEnum.FINISHED.getCode());
+        orderMasterDao.save(orderMaster);
+
+        //4. 构造OrderDTO对象
+        List<OrderDetail> orderDetailList = orderDetailDao.findByOrderId(orderId);
+        if (CollectionUtils.isEmpty(orderDetailList)) {
+            throw new OrderException(ResultEnum.ORDER_DETAIL_NOT_EXIST);
+        }
+        OrderDTO orderDTO = new OrderDTO();
+        BeanUtils.copyProperties(orderMaster, orderDTO);
+        orderDTO.setOrderDetailList(orderDetailList);
+
         return orderDTO;
     }
 }
