@@ -100,6 +100,24 @@
 <!--            <artifactId>spring-boot-starter-actuator</artifactId>-->
 <!--        </dependency>-->
 
+        <!--引入链路监控组件-->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.cloud</groupId>-->
+<!--            <artifactId>spring-cloud-starter-sleuth</artifactId>-->
+<!--        </dependency>-->
+
+        <!--添加sleuth展示的zipkin依赖-->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.cloud</groupId>-->
+<!--            <artifactId>spring-cloud-sleuth-zipkin</artifactId>-->
+<!--        </dependency>-->
+
+        <!--它包含了sleuth和zipkin两个依赖-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-zipkin</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
