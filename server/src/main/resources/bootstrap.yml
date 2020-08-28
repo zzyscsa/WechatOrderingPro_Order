@@ -1,9 +1,6 @@
 spring:
   application:
     name: order
-  redis:
-    host: 192.168.0.105
-    port: 6379
   cloud:
     config:
       discovery:
@@ -15,20 +12,17 @@ spring:
         myMessage:
           group: order #服务分组，多个实例都监听同一个myMessage.group队列
           content-type: application/json #发送的消息序列化,消息堆积的时候可以查到具体消息
-  rabbitmq:
-    host: 192.168.0.105
-    port: 5672
-    username: guest
-    password: guest
   zipkin:
-    base-url: http://192.168.0.105:9411/ #配置zipkin收集地址
+    base-url: http://zipkin:9411/ #配置zipkin收集地址
   sleuth:
     sampler:
       percentage: 1 # 100%请求都发送到zipkin
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://eureka:8761/eureka/
+  instance:
+    prefer-ip-address: true
 
 hystrix:
   command:
