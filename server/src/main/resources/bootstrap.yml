@@ -14,16 +14,20 @@ spring:
           content-type: application/json #发送的消息序列化,消息堆积的时候可以查到具体消息
   zipkin:
     base-url: http://zipkin:9411/ #配置zipkin收集地址
+    sender:
+      type: web # 通过http发送到zipkin
   sleuth:
     sampler:
-      percentage: 1 # 100%请求都发送到zipkin
+      probability: 1 # 100%请求都发送到zipkin
+
 eureka:
   client:
     service-url:
-      defaultZone: http://eureka:8761/eureka/
+      defaultZone: http://localhost:8761/eureka/
   instance:
     prefer-ip-address: true
 
+#hystrix降级超时设置
 hystrix:
   command:
     default:
@@ -38,9 +42,18 @@ hystrix:
             timeoutInMilliseconds: 1000
 
 # feign中使用hystrix
+#feign:
+#  hystrix:
+#    enabled: true
+
+# 新版feign超时配置
 feign:
-  hystrix:
-    enabled: true
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: basic
 
 management:
   context-path: /
